@@ -1,5 +1,6 @@
 package com.example.myui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -12,7 +13,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String BASE_URL = "http://192.168.2.4/android/";
     RequestQueue requestQueue;
     StringRequest jsonrequest;
+    String dName;
     Method method;
     Field field;
     //String[] textField = {"address", "email", "folioNo", "folioDate", "funddesc", "fundCode", "invName", "nav", "navDate", "pan", "phone", "mobile", "trnxStatus", "trnxStatusdesc"};
@@ -55,18 +56,25 @@ public class MainActivity extends AppCompatActivity {
 
         requestQueue = Volley.newRequestQueue(this);
 
+        int resValue = R.layout.search_recycler;
+        dName = "investapp";
         String[] textField = {"invName"};
-        JSONWork jsonWork = new JSONWork(getApplicationContext(), "names", textField, recyclerView);
+        JSONWork jsonWork = new JSONWork(getApplicationContext(), "names", textField, recyclerView, dName, resValue);
         params = jsonWork.jsonRequest();
         this.jsonrequest = (StringRequest) params.get(1);
         requestQueue.add(jsonrequest);
         this.data = (ArrayList<DataAdapter>) params.get(2);
         recyclerView.addOnItemTouchListener(new RecyclerListener(getApplicationContext(), recyclerView, new RecyclerListener.OnItemClickListener() {
-
             @Override
             public void onItemClick(View view, int position) {
                 final DataAdapter newData = data.get(position);
-                Toast.makeText(getApplicationContext(), newData.getinvName().toString(), Toast.LENGTH_LONG).show();
+                String investorName = newData.getinvName();
+                Intent i = new Intent(MainActivity.this, DetailActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("DBName", dName);
+                bundle.putString("InvestorName", investorName);
+                i.putExtras(bundle);
+                startActivity(i);
             }
 
             @Override

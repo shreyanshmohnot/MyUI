@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
@@ -22,20 +24,35 @@ import static com.example.myui.MainActivity.BASE_URL;
 public class JSONWork {
 
     public static RecyclerViewAdapter bindAdapter;
-    private StringRequest jsonrequest;
     private Context context;
     private String[] fields;
-    private Field field;
     private JSONArray array = null;
     private String fileName;
     private ArrayList<DataAdapter> data;
     private RecyclerView recyclerView;
     private Map<Integer, Object> params;
+    private String reqName = null;
+    private int resValue;
+    private String firstReq = null;
 
-    public JSONWork(Context context, String fileName, String[] fields, RecyclerView recyclerView) {
+    public JSONWork(Context context, String fileName, String[] fields, RecyclerView recyclerView, String reqName, int resValue) {
         this.context = context;
         this.fileName = fileName;
         this.fields = fields;
+        this.reqName = reqName;
+        this.resValue = resValue;
+        this.recyclerView = recyclerView;
+        this.data = new ArrayList<DataAdapter>();
+        this.params = new HashMap<Integer, Object>();
+    }
+
+    public JSONWork(Context context, String fileName, String[] fields, RecyclerView recyclerView, String reqName, int resValue, String firstReq) {
+        this.context = context;
+        this.fileName = fileName;
+        this.fields = fields;
+        this.reqName = reqName;
+        this.firstReq = firstReq;
+        this.resValue = resValue;
         this.recyclerView = recyclerView;
         this.data = new ArrayList<DataAdapter>();
         this.params = new HashMap<Integer, Object>();
@@ -43,7 +60,7 @@ public class JSONWork {
 
     public Map<Integer, Object> jsonRequest() {
         try {
-            jsonrequest = new StringRequest(BASE_URL + fileName + ".php", new Response.Listener<String>() {
+            StringRequest jsonrequest = new StringRequest(Request.Method.POST, BASE_URL + fileName + ".php", new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     try {
@@ -59,7 +76,17 @@ public class JSONWork {
                     Toast.makeText(context, "Error Json: " + error, Toast.LENGTH_LONG).show();
                     error.printStackTrace();
                 }
-            });
+            }) {
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Map<String, String> reqParam = new HashMap<String, String>();
+                    reqParam.put("REQ", reqName);
+                    if (firstReq != null) {
+                        reqParam.put("firstREQ", firstReq);
+                    }
+                    return reqParam;
+                }
+            };
             params.put(1, jsonrequest);
             params.put(2, data);
             return params;
@@ -76,7 +103,7 @@ public class JSONWork {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 DataAdapter dataAdp = new DataAdapter();
                 for (int j = 0; j < fields.length; j++) {
-                    field = dataAdp.getClass().getDeclaredField(fields[j]);
+                    Field field = dataAdp.getClass().getDeclaredField(fields[j]);
                     field.set(dataAdp, jsonObject.getString(fields[j]));
                 }
                 data.add(dataAdp);
@@ -85,7 +112,7 @@ public class JSONWork {
             Toast.makeText(context, "Handle: " + e, Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
-        bindAdapter = new RecyclerViewAdapter(data, context, fields);
+        bindAdapter = new RecyclerViewAdapter(data, context, fields, resValue);
         recyclerView.setAdapter(bindAdapter);
     }
 }

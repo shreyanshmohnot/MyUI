@@ -2,11 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_margin="10dp"
     android:orientation="vertical">
 
     <android.support.v7.widget.CardView
-        android:id="@+id/detailcard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
@@ -15,14 +15,12 @@
         card_view:cardMaxElevation="7dp">
 
         <TextView
-            android:id="@+id/cardFolio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="8dp"
-            android:hint="Folio No"
-            android:padding="10dp"
-            android:textSize="20sp" />
-
+            android:id="@+id/totalfolio"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:gravity="bottom|right"
+            android:padding="5dp"
+            android:text="Folio Number"
+            android:textSize="40sp" />
     </android.support.v7.widget.CardView>
 </LinearLayout>

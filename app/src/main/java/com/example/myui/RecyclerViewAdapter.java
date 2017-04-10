@@ -22,18 +22,20 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     String filterString = null;
     private ArrayList<DataAdapter> mArrayList;
     private ArrayList<DataAdapter> mFilteredList;
+    private int resValue;
 
-    public RecyclerViewAdapter(ArrayList<DataAdapter> dataAdapter, Context context, String[] fields) {
+    public RecyclerViewAdapter(ArrayList<DataAdapter> dataAdapter, Context context, String[] fields, int resValue) {
         //super();
         this.mArrayList = dataAdapter;
         this.mFilteredList = dataAdapter;
         this.context = context;
+        this.resValue = resValue;
         this.fields = fields;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.search_recycler, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(resValue, parent, false);
         ViewHolder viewHolder = new ViewHolder(v);
         return viewHolder;
     }
@@ -44,14 +46,19 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         for (int i = 0; i < fields.length; i++) {
             try {
                 Method method = dataAdapter1.getClass().getDeclaredMethod("get" + fields[i]);
-                String text = WordUtils.capitalizeFully((String) method.invoke(dataAdapter1));
+                String text = (String) method.invoke(dataAdapter1);
+                text = text.toString();
+                text = WordUtils.capitalizeFully(text);
 
                 Field field = holder.getClass().getDeclaredField(fields[i] + "View");
+
                 TextView tV = (TextView) field.get(holder);
 
                 Class cls = field.getType();
-                Method method1 = cls.getDeclaredMethod("setText", new Class[]{CharSequence.class});
-                method1.invoke(tV, new Object[]{text});
+
+                Method method1 = cls.getDeclaredMethod("setText", CharSequence.class);
+
+                method1.invoke(tV, text);
 
                 field.set(holder, tV);
 
@@ -105,10 +112,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView invNameView;
+        public TextView invNameView, folioNoView;
 
         public ViewHolder(View itemView) {
             super(itemView);
+            folioNoView = (TextView) itemView.findViewById(R.id.cardFolio);
             invNameView = (TextView) itemView.findViewById(R.id.searchtext);
         }
     }
